@@ -263,7 +263,6 @@ net.ipv4.icmp_ignore_bogus_error_messages = 1
 net.ipv4.tcp_syncookies = 1
 net.ipv4.conf.all.rp_filter = 1
 net.ipv4.conf.default.rp_filter = 1
-
 ```
 
 From the NSA guide:
@@ -281,6 +280,8 @@ are routers for very complicated networks, but is helpful for end hosts and rout
 For more information on any of these, see the kernel source documentation file
 /Documentation/networking/ip-sysctl.txt.2
 ```
+
+To make theses changement permanent: `sudo sysctl -p`
 
 **Disable wireless functionnalities**:
 
@@ -344,10 +345,79 @@ For each interfaces **INTERFACE** edit `/etc/sysconfig/network-scripts/ifcfg-INT
 
 - Run DNS in `chroot` jail ( see package `bind-chroot`)
 
-##  Sources
+#### ipkungfu
+
+This is a wrapper around iptables.
+
+Edit the file `/etc/ipkungfu/ipkungfu.conf`:
+
+```
+# IP Range of your internal network. Use "127.0.0.1"
+# for a standalone machine. Default is a reasonable
+# guess.
+LOCAL_NET="192.168.1.0/255.255.255.0"
+
+---
+
+# Set this to 0 for a standalone machine, or 1 for
+# a gateway device to share an Internet connection.
+# Default is 1.
+GATEWAY=0
+
+---
+
+# Temporarily block future connection attempts from an
+# IP that hits these ports (If module is present)
+FORBIDDEN_PORTS="135 137 139"
+
+---
+
+# Drop all ping packets?
+# Set to 1 for yes, 0 for no. Default is no.
+BLOCK_PINGS=1
+
+---
+
+# What to do with 'probably malicious' packets
+#SUSPECT="REJECT"
+SUSPECT="DROP"
+
+---
+
+# What to do with obviously invalid traffic
+# This is also the action for FORBIDDEN_PORTS
+#KNOWN_BAD="REJECT"
+KNOWN_BAD="DROP"
+
+---
+
+# What to do with port scans
+#PORT_SCAN="REJECT"
+PORT_SCAN="DROP"
+```
+
+Enable ipkungfu to auto start change `IPKFSTART = 0` to `IPKFSTART = 1` in `/etc/default/ipkungfu`
+
+Then start ipkungu: `sudo ipkungfu` 
+
+#### rkhunter
+
+This package check for known rootkit
+
+#### DNScrypt
+
+DNS crypt setup a secure DNS-connection. After installing, set your DNS server to `127.0.0.1` in `/etc/resolv.conf`
+
+and then run `sudo dnscrypt-proxy --daemonize`
+
+#### Other
+
+Check the official wiki, always use open source service.
+
+## Sources
 
  - https://wiki.archlinux.org/title/Security
  - [https://theprivacyguide1.github.io/linux\_hardening\_guide#kernel](https://theprivacyguide1.github.io/linux\_hardening\_guide#kernel)
  - [NSA rhel5 guide](https://web.archive.org/web/20160307150120/http://www.nsa.gov/ia/_files/os/redhat/rhel5-guide-i731.pdf)
- - 
+ - [https://web.archive.org/web/20140220055801/http://crunchbang.org:80/forums/viewtopic.php?id=24722](https://web.archive.org/web/20140220055801/http://crunchbang.org:80/forums/viewtopic.php?id=24722)
 
